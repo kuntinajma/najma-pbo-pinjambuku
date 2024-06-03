@@ -1,46 +1,49 @@
 <?php
 require_once './buku.php';
 require_once './mahasiswa.php';
+require_once './db.php';
 
 class Peminjaman {
-    public $nimMahasiswa;
-    public $kodeBuku;
-    private $tanggalPinjam;
-    private $tanggalKembali;
+    private $listMhs;
+    private $listBook;
 
+    public $mahasiswa;
+    public $book;
+    public $tanggalPinjam;
+    public $tanggalKembali;
+    public function __construct(array $listMhs, array $listBook) {
+        $this->listMhs = $listMhs;
+        $this->listBook = $listBook;
 
-    public function __construct(string $kodeBuku, string $nimMahasiswa, string $tanggalPinjam) {
-        $this->kodeBukuuku = $kodeBuku;
-        $this->nimMahasiswaahasiswa = $nimMahasiswa;
-        $this->tanggalPinjam = $tanggalPinjam;
     }
 
+    public function pinjam(string $nimMhs, string $kodeBuku, string $tglPinjam){
+        $bookFound = $this->searchBook($kodeBuku);
+        $mhsFound = $this->searchMhs($nimMhs);
 
-    public function gettanggalKembali() {
-        return $this->tanggalKembali;
-    }
+        $this->book = $bookFound;
+        $this->mahasiswa = $mhsFound;
+        $this->tanggalPinjam = $tglPinjam;
 
-    public function setTanggalKembali($tanggalKembali) {
-        $this->tanggalKembali = $tanggalKembali;
-    }
-
-    public function getTanggalPinjam() {
-        return $this->tanggalPinjam;
-    }
-
-    public function setTanggalPinjam(string $tanggalPinjam){
-        $this->tanggalPinjam = $tanggalPinjam;
-    }
-
-    public function getData() {
+        $tgl_pinjam = new DateTime($tglPinjam);
+        $tgl_pinjam->modify("+ 3 days");
         
-        $data = [
-            'nim' => $this->nimMahasiswa,
-            'kode_buku' => $this->kodeBuku,
-            'tanggal_pinjam' => $this->tanggalPinjam,
-            'tanggal_kembali' => $this->tanggalKembali,
-        ];
+        $this->tanggalKembali =  $tgl_pinjam->format('Y-m-d');
+    }
 
-        return $data;
+    private function searchBook($kodeBuku){
+        foreach($this->listBook as $book){
+            if($book->kodeBuku == $kodeBuku){
+                return $book;
+            }
+        }
+    }
+
+    private function searchMhs($nimMhs){
+        foreach($this->listMhs as $mhs){
+            if($mhs->nimMahasiswa == $nimMhs){
+                return $mhs;
+            }
+        }
     }
 }

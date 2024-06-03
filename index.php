@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,8 +17,14 @@
         }
 
         section {
-            width: 50%;
             padding: 10px;
+        }
+
+        .section1 {
+            width: 20%;
+        }
+        .section2 {
+            width: 80%;
         }
 
         .form-pinjam {
@@ -27,6 +34,10 @@
             justify-content: start;
             align-items: start;
         }
+
+        table, th, td {
+            border: solid 1px #000;
+        }
     </style>
 </head>
 <body>
@@ -34,15 +45,43 @@
 
     <?php
         require_once './db.php';
+        require_once './peminjaman.php';
+        
+        // DATA PEMINJAMAN DISIMPAN DI SESSION STORAGE BROWSER
+        // ----------------------------------------------------
+        // selama browser dibuka, data di session storage masih ada.
+        // cara hapusnya tutup browser dulu
+        // ATAU
+        // - buka chrome devtools (klik kanan inspect)
+        // - klik tab application
+        // - klik storage
+        // - klik clear site data
 
-        $dataPinjam = $_POST;
-        $listDataPinjam = array();
+        if(!isset($_SESSION['data_pinjam'])){
+            $_SESSION['data_pinjam'] = array();
+        }
 
-        array_push($listDataPinjam, $dataPinjam);
+        // fungsi proses simpan peminjaman
+        function simpanPeminjaman($data){
+            global $listMhs;
+            global $listBook;
+        
+            $peminjaman = new Peminjaman($listMhs, $listBook);
+            $peminjaman->pinjam($data['mahasiswa'], $data['buku'], $data['tanggal_pinjam']);
+            array_push($_SESSION['data_pinjam'], serialize($peminjaman));
+        }
+        // 
+        if(isset($_POST['pinjam'])){
+            simpanPeminjaman($_POST);
+        }
+
+
     ?>
 
     <main>
-        <section>
+        <section class="section1">
+            <h1>Ayo Pinjam Buku!</h1>
+            <hr>
             <form action="" method="post" class="form-pinjam">
                 <label for="mahasiswa">Pilih Mahasiswa</label>
                 <select name="mahasiswa" id="mahasiswa">
@@ -61,13 +100,40 @@
                 <label for="tanggal_pinjam">Tanggal Pinjam</label>
                 <input type="date" name="tanggal_pinjam" id="tanggal_pinjam">
 
-                <button type="submit">Pinjam!</button>
+                <button type="submit" name="pinjam" value="pinjam">Pinjam!</button>
             </form>
         </section>
-        <section>
-                <?php 
-                    var_dump($listDataPinjam);
-                ?>
+        <section class="section2">
+            <h1>Data Peminjaman</h1>
+            <hr>
+            <table>
+                <thead>
+                    <tr>
+                        <th>NIM Mahasiswa</th>
+                        <th>Nama Mahasiswa</th>
+                        <th>Kode Buku</th>
+                        <th>Judul Buku</th>
+                        <th>Tanggal Pinjam</th>
+                        <th>Tanggal Kembali</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    foreach($_SESSION['data_pinjam'] as $peminjaman )
+                    {
+                        $p = unserialize($peminjaman);
+                        echo "<tr>";
+                        echo "<td>".$p->mahasiswa->nimMahasiswa."</td>";
+                        echo "<td>".$p->mahasiswa->namaMahasiswa."</td>";
+                        echo "<td>".$p->book->kodeBuku."</td>";
+                        echo "<td>".$p->book->judulBuku."</td>";
+                        echo "<td>".$p->tanggalPinjam."</td>";
+                        echo "<td>".$p->tanggalKembali."</td>";
+                        echo "</tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
         </section>
     </main>
 </body>

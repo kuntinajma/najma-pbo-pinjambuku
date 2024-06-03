@@ -1,5 +1,7 @@
 <?php
 require_once './peminjaman.php';
+require_once './mahasiswa.php';
+require_once './buku.php';
 
 
 $mhs1 = new Mahasiswa('2022150182', 'Kunti Najma Jalia', '96');
