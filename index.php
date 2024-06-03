@@ -21,10 +21,10 @@
         }
 
         .section1 {
-            width: 20%;
+            width: 25%;
         }
         .section2 {
-            width: 80%;
+            width: 75%;
         }
 
         .form-pinjam {
@@ -46,7 +46,7 @@
     <?php
         require_once './db.php';
         require_once './peminjaman.php';
-        
+
         // DATA PEMINJAMAN DISIMPAN DI SESSION STORAGE BROWSER
         // ----------------------------------------------------
         // selama browser dibuka, data di session storage masih ada.
